@@ -8,8 +8,16 @@ import (
 )
 
 type TagManagement struct {
-	App  *wechatwork.App
-	tags []*Tag
+	App *wechatwork.App
+	// tags []*Tag
+}
+
+// @todo 关联 contact
+func (contact *Contact) NewTagManagement() *TagManagement {
+	contact.TagManageMent = &TagManagement{
+		App: contact.App,
+	}
+	return contact.TagManageMent
 }
 
 type Tag struct {
@@ -20,48 +28,6 @@ type Tag struct {
 func NewTag(tagname string, tagid int) *Tag {
 	return &Tag{}
 }
-
-// TODO Tag 管理API
-// BadDecl
-
-/*
-
-ok 创建标签
-	请求方式：POST（HTTPS）
-	请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/create?access_token=ACCESS_TOKEN
-
-ok 更新标签名字
-	请求方式：POST（HTTPS）
-	请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/update?access_token=ACCESS_TOKEN
-
-
-
-ok 删除标签
-	请求方式：GET（HTTPS）
-	请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/delete?access_token=ACCESS_TOKEN&tagid=TAGID
-
-
-ok 获取标签列表
-	请求方式：GET（HTTPS）
-	请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/list?access_token=ACCESS_TOKEN
-
-
-ok 获取标签成员
-	请求方式：GET（HTTPS）
-	请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/get?access_token=ACCESS_TOKEN&tagid=TAGID
-
-
------
-
-ok 增加标签成员
-	请求方式：POST（HTTPS）
-	请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/addtagusers?access_token=ACCESS_TOKEN
-
-删除标签成员
-请求方式：POST（HTTPS）
-请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/deltagusers?access_token=ACCESS_TOKEN
-
-*/
 
 var apiPath = "https://qyapi.weixin.qq.com/cgi-bin/tag"
 
@@ -95,7 +61,7 @@ func (manager *TagManagement) Create(body Tag) (RespCreateTag, error) {
 		return RespCreateTag{}, err
 	}
 
-	manager.tags = append(manager.tags, &body)
+	// manager.tags = append(manager.tags, &body)
 
 	return result, nil
 }
@@ -123,11 +89,11 @@ func (manager *TagManagement) Update(body Tag) (RespUpdateTag, error) {
 	}
 
 	// 更新 本地 manager
-	for _, tag := range manager.tags {
-		if tag.TagID == body.TagID {
-			tag.Tagname = body.Tagname
-		}
-	}
+	// for _, tag := range manager.tags {
+	// 	if tag.TagID == body.TagID {
+	// 		tag.Tagname = body.Tagname
+	// 	}
+	// }
 
 	return result, nil
 }
@@ -147,11 +113,11 @@ func (manager *TagManagement) Delete(tagid int) (RespCommon, error) {
 	}
 
 	// 更新 本地 manager
-	for index, tag := range manager.tags {
-		if tag.TagID == tagid {
-			manager.tags = append(manager.tags[:index], manager.tags[index+1:]...)
-		}
-	}
+	// for index, tag := range manager.tags {
+	// 	if tag.TagID == tagid {
+	// 		manager.tags = append(manager.tags[:index], manager.tags[index+1:]...)
+	// 	}
+	// }
 	return result, nil
 }
 
@@ -205,28 +171,6 @@ func (manager *TagManagement) List() (RespGetTags, error) {
 	return result, nil
 }
 
-/*
-1. 正确
-{
-	"errcode": 0,
-	"errmsg": "ok"
-}
-
-2. 若部分userid、partylist非法，则返回
-{
-	"errcode": 0,
-	"errmsg": "ok",
-	"invalidlist"："usr1|usr2|usr",
-	"invalidparty"：[2,4]
-}
-
-3. 当包含userid、partylist全部非法时返回
-{
-	"errcode": 40070,
-	"errmsg": "all list invalid "
-}
-*/
-
 type RespTagUsers struct {
 	RespCommon
 	InValidList  string `json:"invalidlist"`
@@ -276,7 +220,6 @@ func (manager *TagManagement) AddTagUsers(body ReqAddTagUsers) (interface{}, err
 //
 // 请求方式：POST（HTTPS）
 // 请求地址：https://qyapi.weixin.qq.com/cgi-bin/tag/deltagusers?access_token=ACCESS_TOKEN
-
 type ReqDelTagUsers struct {
 	TagID     int      `json:"tagid"`
 	UserList  []string `json:"userlist"`
